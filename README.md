@@ -29,7 +29,7 @@ PyTgConfigGenerator is a small static web tool that generates a configuration fi
 4. Open http://localhost:8000 in your browser.
 
 ## 💭 Can i use it without hosting it?
-Yes. You can find the website at [githubpages]
+Yes. You can find the website at https://michele-gua.github.io/PyTgConfigGenerator/
 
 ## 👨🏻‍👩🏻‍👦🏻‍👦🏿 Contributing
 
