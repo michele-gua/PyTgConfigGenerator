@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PyTG — config.py Generator</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+        /* Minimal layout helpers in case some classes are missing from style.css */
+        .container { max-width: 980px; margin: 36px auto; padding: 16px; }
+        .card { padding: 18px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06);}
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; }
+        .form-row { display:flex; flex-direction:column; gap:6px; position:relative; }
+        label.label { font-size: 0.9rem; color: var(--muted,#666); display:flex; align-items:center; gap:8px; }
+        input.input, textarea.input, select.input { padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-family: monospace; }
+        textarea.input { min-height:220px; resize:vertical; white-space:pre; font-family: monospace; }
+        .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+        .btn { padding:8px 12px; border-radius:6px; border:none; cursor:pointer; background:var(--accent,#0b6cff); color:white; }
+        .btn.secondary { background:#6c757d; }
+        .small { font-size:0.85rem; color:var(--muted,#666); }
+        /* Help tooltip (hidden until hover/focus) */
+        .help-wrapper { display:inline-block; position:relative; margin-left:6px; vertical-align:middle; }
+        .help-icon {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:20px;
+            height:20px;
+            border-radius:50%;
+            background:#e9ecef;
+            color:#333;
+            font-weight:700;
+            font-size:0.85rem;
+            border:1px solid #ccc;
+            cursor:help;
+            line-height:1;
+        }
+        .help {
+            display:none;
+            position:absolute;
+            left:0;
+            top:calc(100% + 8px);
+            min-width:180px;
+            max-width:360px;
+            background:#fff;
+            border:1px solid rgba(0,0,0,.08);
+            box-shadow:0 6px 18px rgba(0,0,0,.08);
+            padding:8px 10px;
+            border-radius:6px;
+            font-size:0.83rem;
+            color:#333;
+            z-index:20;
+            white-space:normal;
+        }
+        /* show on hover or keyboard focus */
+        .help-wrapper:hover .help,
+        .help-wrapper:focus-within .help {
+            display:block;
+        }
+        /* small muted inline help used previously */
+        .help.small-inline { position:static; display:block; box-shadow:none; border:none; background:transparent; padding:0; color:var(--muted,#666); font-size:0.82rem; margin-top:6px; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>PyTG config.py — Generator</h1>
+        <p class="small">Fill the values below and click Generate. The form is submitted to server-side PHP (generate.php) which will return the generated config.</p>
+
+        <form class="card" aria-labelledby="form-heading" method="post" action="generate.php">
+            <h2 id="form-heading">Bot Settings</h2>
+
+            <div class="form-grid">
+                <div class="form-row">
+                    <label class="label" for="bot_token">BOT_TOKEN
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-bot-token">?</button>
+                            <div class="help" id="help-bot-token">Telegram bot token. Format: &lt;bot_id&gt;:&lt;token&gt;.</div>
+                        </span>
+                    </label>
+                    <input id="bot_token" name="BOT_TOKEN" class="input" placeholder='""' />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="allowed_chat_ids">ALLOWED_CHAT_IDS (one per line or comma separated)
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-allowed-chat-ids">?</button>
+                            <div class="help" id="help-allowed-chat-ids">List of chat IDs allowed to use the bot. You can provide comma separated values or one per line.</div>
+                        </span>
+                    </label>
+                    <textarea id="allowed_chat_ids" name="ALLOWED_CHAT_IDS" class="input" placeholder="123456,654321"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="msg_limit">MSG_LIMIT (int)
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-msg-limit">?</button>
+                            <div class="help" id="help-msg-limit">Code message row character limit. Default: 60.</div>
+                        </span>
+                    </label>
+                    <input id="msg_limit" name="MSG_LIMIT" type="number" class="input" value="60" min="1" />
+                </div>
+            </div>
+
+            <h2 style="margin-top:14px;">Script settings</h2>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label class="label" for="backup_script_path">BACKUP_SCRIPT_PATH</label>
+                    <input id="backup_script_path" name="BACKUP_SCRIPT_PATH" class="input" placeholder='"/path/to/script.sh"' />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="backup_script_args">BACKUP_SCRIPT_ARGS (one per line or comma separated)
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-backup-args">?</button>
+                            <div class="help" id="help-backup-args">Arguments passed to the backup script. Provide as comma separated values or one per line.</div>
+                        </span>
+                    </label>
+                    <textarea id="backup_script_args" name="BACKUP_SCRIPT_ARGS" class="input" placeholder="arg1, arg2, arg3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="backup_flag_path">BACKUP_FLAG_PATH (computed)
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-backup-flag">?</button>
+                            <div class="help" id="help-backup-flag">Server will compute BACKUP_FLAG_PATH = BACKUP_SCRIPT_PATH[0:BACKUP_SCRIPT_PATH.rfind("/")]+"/update".</div>
+                        </span>
+                    </label>
+                    <input id="backup_flag_path" name="BACKUP_FLAG_PATH" class="input" readonly placeholder='Computed server-side from BACKUP_SCRIPT_PATH' />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="nginx_db_update_path">NGINX_DB_UPDATE_PATH</label>
+                    <input id="nginx_db_update_path" name="NGINX_DB_UPDATE_PATH" class="input" placeholder='""' />
+                </div>
+            </div>
+
+            <h2 style="margin-top:14px;">Heartbeat</h2>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label class="label"><input id="heartbeat_enabled" name="HEARTBEAT_ENABLED" type="checkbox" value="1" /> HEARTBEAT_ENABLED</label>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="heartbeat_url">HEARTBEAT_URL</label>
+                    <input id="heartbeat_url" name="HEARTBEAT_URL" class="input" placeholder='""' />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="heartbeat_interval">HEARTBEAT_INTERVAL (seconds)
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-heartbeat-interval">?</button>
+                            <div class="help" id="help-heartbeat-interval">Time to wait (in seconds) before fetching again. Default: 50.</div>
+                        </span>
+                    </label>
+                    <input id="heartbeat_interval" name="HEARTBEAT_INTERVAL" type="number" class="input" value="50" min="1" />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="heartbeat_max_retries">HEARTBEAT_MAX_RETRIES
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-heartbeat-max">?</button>
+                            <div class="help" id="help-heartbeat-max">The maximum number of attempts before disabling the heartbeat. Default: 3.</div>
+                        </span>
+                    </label>
+                    <input id="heartbeat_max_retries" name="HEARTBEAT_MAX_RETRIES" type="number" class="input" value="3" min="0" max="10" />
+                </div>
+
+                <div class="form-row">
+                    <label class="label"><input id="heartbeat_log_success" name="HEARTBEAT_LOG_SUCCESS" type="checkbox" value="1" /> HEARTBEAT_LOG_SUCCESS</label>
+                </div>
+
+                <div class="form-row">
+                    <label class="label"><input id="heartbeat_fail_on_error" name="HEARTBEAT_FAIL_ON_ERROR" type="checkbox" value="1" /> HEARTBEAT_FAIL_ON_ERROR</label>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:12px;">
+                <button type="submit" name="action" value="generate" class="btn">Generate</button>
+                <button type="submit" name="action" value="download" class="btn secondary">Download config.py</button>
+                <button type="button" class="btn secondary" disabled title="Copy requires client-side script">Copy to clipboard</button>
+                <button type="button" class="btn secondary" id="clear-btn">Clear</button>
+            </div>
+        </form>
+
+        <section class="card" style="margin-top:16px;">
+            <h2>Generated config.py</h2>
+            <!-- Server should populate this textarea with the generated config.py content -->
+            <textarea id="output" name="generated" class="input" readonly spellcheck="false" aria-label="Generated config.py"></textarea>
+        </section>
+    </main>
+    <script>
+                document.addEventListener('DOMContentLoaded', () => {
+          const output = document.getElementById('output');
+          if (output) {
+            output.value = '';
+          }
+        });
+    </script>
+    <script src="../js/generateBot.js"></script>
+    <script src="../js/downloadFile.js"></script>
+    <script src="../js/clearBtn.js"></script>
+</body>
+</html></span>

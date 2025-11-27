@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PyTG — API config.py Generator</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+        .container { max-width: 980px; margin: 36px auto; padding: 16px; }
+        .card { padding: 18px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 12px; }
+        .form-row { display:flex; flex-direction:column; gap:6px; position:relative; }
+        label.label { font-size: 0.9rem; color: var(--muted,#666); display:flex; align-items:center; gap:8px; }
+        input.input, textarea.input, select.input { padding:8px 10px; border-radius:6px; border:1px solid #ccc; font-family: monospace; }
+        textarea.input { min-height:180px; resize:vertical; white-space:pre; font-family: monospace; }
+        .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+        .btn { padding:8px 12px; border-radius:6px; border:none; cursor:pointer; background:var(--accent,#0b6cff); color:white; }
+        .btn.secondary { background:#6c757d; }
+        .small { font-size:0.85rem; color:var(--muted,#666); }
+
+        /* Help tooltip (shows on hover or focus) */
+        .help-wrapper { display:inline-block; position:relative; margin-left:6px; vertical-align:middle; }
+        .help-icon {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:20px;
+            height:20px;
+            border-radius:50%;
+            background:#e9ecef;
+            color:#333;
+            font-weight:700;
+            font-size:0.85rem;
+            border:1px solid #ccc;
+            cursor:help;
+            line-height:1;
+        }
+        .help {
+            display:none;
+            position:absolute;
+            left:0;
+            top:calc(100% + 8px);
+            min-width:180px;
+            max-width:360px;
+            background:#fff;
+            border:1px solid rgba(0,0,0,.08);
+            box-shadow:0 6px 18px rgba(0,0,0,.08);
+            padding:8px 10px;
+            border-radius:6px;
+            font-size:0.83rem;
+            color:#333;
+            z-index:20;
+            white-space:normal;
+        }
+        .help-wrapper:hover .help,
+        .help-wrapper:focus-within .help {
+            display:block;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <h1>API config.py — Generator</h1>
+        <p class="small">Fill values and click Generate. Use Download to save config.py.</p>
+
+        <form class="card" id="config-form" method="post" action="generate.php">
+            <h2>API Settings</h2>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label class="label">
+                        <input id="debug_logging" name="DEBUG_LOGGING" type="checkbox" />
+                        DEBUG_LOGGING
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-debug">?</button>
+                            <div class="help" id="help-debug">Include debug logs in stdout</div>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="protected_containers">PROTECTED_CONTAINERS (one per line or comma separated)
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-protected">?</button>
+                            <div class="help" id="help-protected">List of IDs of containers that will be excluded from standard operation. Provide one per line or comma-separated.</div>
+                        </span>
+                    </label>
+                    <textarea id="protected_containers" name="PROTECTED_CONTAINERS" class="input" placeholder="12345, 67890"></textarea>
+                </div>
+            </div>
+
+            <h2 style="margin-top:14px;">Auth settings</h2>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label class="label" for="token_timeout">TOKEN_TIMEOUT (minutes)</label>
+                    <input id="token_timeout" name="TOKEN_TIMEOUT" type="number" class="input" value="30" min="1" />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="auth_secret">AUTH_SECRET
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-secret">?</button>
+                            <div class="help" id="help-secret">The server secret key used to generate JWT Token. Type "Random" to create a new key on each start (previous tokens become invalid).</div>
+                        </span>
+                    </label>
+                    <input id="auth_secret" name="AUTH_SECRET" class="input" value="Random" />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="auth_username">AUTH_USERNAME</label>
+                    <input id="auth_username" name="AUTH_USERNAME" class="input" value="user" />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="auth_password_hash">AUTH_PASSWORD_HASH
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-bcrypt">?</button>
+                            <div class="help" id="help-bcrypt">Bcrypt hash for the login password (default: admin123). Generate at https://bcrypt.online/</div>
+                        </span>
+                    </label>
+                    <input id="auth_password_hash" name="AUTH_PASSWORD_HASH" class="input" value="$2y$10$FhflrYHMqB67.X6vP1VTx.ZB2pkOBi648WE5GB6ylPu85K0lOORQW" />
+                </div>
+            </div>
+
+            <h2 style="margin-top:14px;">Script settings</h2>
+            <div class="form-grid">
+                <div class="form-row">
+                    <label class="label" for="backup_script_path">BACKUP_SCRIPT_PATH
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-backup-path">?</button>
+                            <div class="help" id="help-backup-path">Path to the backup script (e.g. "/path/to/script.sh").</div>
+                        </span>
+                    </label>
+                    <input id="backup_script_path" name="BACKUP_SCRIPT_PATH" class="input" placeholder='"/path/to/script.sh"' />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="backup_script_args">BACKUP_SCRIPT_ARGS (one per line or comma separated)</label>
+                    <textarea id="backup_script_args" name="BACKUP_SCRIPT_ARGS" class="input" placeholder="arg1, arg2, arg3"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="backup_flag_path">BACKUP_FLAG_PATH (computed)
+                        <span class="help-wrapper" title="Help">
+                            <button type="button" class="help-icon" aria-expanded="false" aria-controls="help-backup-flag">?</button>
+                            <div class="help" id="help-backup-flag">This is the file that gets updated when the backup script runs. Default: &lt;BackupScriptWorkingDirectory&gt;/update. Will be computed server-side from BACKUP_SCRIPT_PATH.</div>
+                        </span>
+                    </label>
+                    <input id="backup_flag_path" name="BACKUP_FLAG_PATH" class="input" readonly placeholder='Computed from BACKUP_SCRIPT_PATH' />
+                </div>
+
+                <div class="form-row">
+                    <label class="label" for="nginx_db_update_path">NGINX_DB_UPDATE_PATH</label>
+                    <input id="nginx_db_update_path" name="NGINX_DB_UPDATE_PATH" class="input" value="" />
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:12px;">
+                <button type="submit" name="action" value="generate" class="btn">Generate</button>
+                <button type="submit" name="action" value="download" class="btn secondary">Download config.py</button>
+                <button type="button" class="btn secondary" disabled title="Copy requires client-side script">Copy to clipboard</button>
+                <button type="button" class="btn secondary" id="clear-btn">Clear</button>
+            </div>
+        </form>
+
+        <section class="card" style="margin-top:16px;">
+            <h2>Generated config.py</h2>
+            <textarea id="output" name="generated" class="input" readonly spellcheck="false" aria-label="Generated config.py"></textarea>
+        </section>
+    </main>
+    <script>
+                document.addEventListener('DOMContentLoaded', () => {
+          const output = document.getElementById('output');
+          if (output) {
+            output.value = '';
+          }
+        });
+    </script>
+    <script src="../js/downloadFile.js"></script>
+    <script src="../js/generateApi.js"></script>
+    <script src="../js/clearBtn.js"></script>
+</body>
+</html>
