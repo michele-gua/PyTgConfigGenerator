@@ -82,12 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const BACKUP_SCRIPT_PATH = getValue('backup_script_path');
     const BACKUP_SCRIPT_ARGS = parseList(getValue('backup_script_args', 'textarea'));
 
-    let BACKUP_FLAG_PATH = 'BACKUP_SCRIPT_PATH[0:BACKUP_SCRIPT_PATH.rfind("/")] + "/update"';
-    if (BACKUP_SCRIPT_PATH) {
-      const idx = BACKUP_SCRIPT_PATH.lastIndexOf('/');
-      BACKUP_FLAG_PATH = idx !== -1 ? BACKUP_SCRIPT_PATH.slice(0, idx) + '/update' : '';
-    }
-
     const NGINX_DB_UPDATE_PATH = getValue('nginx_db_update_path');
 
     let config = '';
@@ -99,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     config += `AUTH_PASSWORD_HASH = "${AUTH_PASSWORD_HASH}"\n`;
     config += `BACKUP_SCRIPT_PATH = "${BACKUP_SCRIPT_PATH}"\n`;
     config += `BACKUP_SCRIPT_ARGS = [${BACKUP_SCRIPT_ARGS.map(a => `'${a}'`).join(', ')}]\n`;
-    config += `BACKUP_FLAG_PATH = "${BACKUP_FLAG_PATH}"\n`;
+    config += `BACKUP_FLAG_PATH = BACKUP_SCRIPT_PATH[0:BACKUP_SCRIPT_PATH.rfind("/")] + "/update"\n`;
     config += `NGINX_DB_UPDATE_PATH = "${NGINX_DB_UPDATE_PATH}"\n`;
 
     return config;
