@@ -1,12 +1,6 @@
 # PyTgConfigGenerator
 
-PyTgConfigGenerator is a small static web tool that generates a configuration file compatible with zDany01/PyTG (https://github.com/zDany01/PyTG). Use the web UI to fill deployment values, validate fields, and download a ready-to-use config for your bot or client. The project is hostable on GitHub Pages and runs locally with any simple static web server.
-
-## ✨ Features
-
-- Multi-page web UI for guided config creation
-- Field validation and helpful hints for required values
-- Downloadable config file (compatible with PyTG)
+PyTgConfigGenerator is a static web tool that generates a configuration files for zDany01/PyTG (https://github.com/zDany01/PyTG).
 
 ## 📋 Requirements
 
